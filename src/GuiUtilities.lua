@@ -117,6 +117,14 @@ function module.syncGuiElementScrollColor(guiElement)
 	setColors()
 end
 
+function module.syncGuiElementImageColor(guiElement)
+	local function setColors()
+		guiElement.ImageColor3 = settings().Studio.Theme:GetColor(Enum.StudioStyleGuideColor.MainBackground)
+	end
+	settings().Studio.ThemeChanged:connect(setColors)
+	setColors()
+end
+
 -- A frame with standard styling.
 function module.MakeFrame(name)
 	local frame = Instance.new("Frame")
@@ -216,6 +224,24 @@ function module.MakeStandardPropertyLabel(text, opt_ignoreThemeUpdates)
 	label.AnchorPoint = Vector2.new(0, 0.5)
 	label.Position = UDim2.new(0, module.StandardLineLabelLeftMargin, 0.5, module.kTextVerticalFudge)
 	label.Size = UDim2.new(0, module.StandardLineLabelWidth, 1, 0)
+	
+	local textTruncate = Instance.new("Frame")
+	textTruncate.Size = UDim2.new(1, 0, 1, 0)
+	textTruncate.SizeConstraint = Enum.SizeConstraint.RelativeYY
+	textTruncate.Position = UDim2.new(1, 0, 0, 0)
+	textTruncate.BorderSizePixel = 0
+	textTruncate.Parent = label
+	module.syncGuiElementBackgroundColor(textTruncate)
+	
+	local fadeImage = Instance.new("ImageLabel")
+	fadeImage.Image = "rbxassetid://5540744213"
+	fadeImage.Position = UDim2.new(1, 0, 0, 0)
+	fadeImage.Size = UDim2.new(.5, 0, 1, 0)
+	fadeImage.SizeConstraint = Enum.SizeConstraint.RelativeYY
+	fadeImage.BackgroundTransparency = 1
+	fadeImage.AnchorPoint = Vector2.new(1, 0)
+	fadeImage.Parent = label
+	module.syncGuiElementImageColor(fadeImage)
 
 	if (not opt_ignoreThemeUpdates) then 			
 		module.syncGuiElementFontColor(label)
