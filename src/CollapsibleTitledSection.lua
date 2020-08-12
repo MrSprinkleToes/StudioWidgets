@@ -95,9 +95,13 @@ function CollapsibleTitledSectionClass:_UpdateMinimizeButton()
 	-- This is all in a scroll widget.
 	-- :(
 	if (self._minimized) then 
-		self._minimizeButton.Image = kRightButtonAsset
+		self._minimizeButton.Image = "rbxasset://textures/StudioSharedUI/arrowSpritesheet.png"
+		self._minimizeButton.ImageRectSize = Vector2.new(12, 12)
+		self._minimizeButton.ImageRectOffset = Vector2.new(12, 0)
 	else
-		self._minimizeButton.Image = kDownButtonAsset
+		self._minimizeButton.Image = "rbxasset://textures/StudioSharedUI/arrowSpritesheet.png"
+		self._minimizeButton.ImageRectSize = Vector2.new(12, 12)
+		self._minimizeButton.ImageRectOffset = Vector2.new(24, 0)
 	end
 end
 
@@ -124,6 +128,9 @@ function CollapsibleTitledSectionClass:_CreateTitleBar(titleText)
 	titleBar.Parent = self._frame
 	titleBar.LayoutOrder = 1
 	GuiUtilities.syncGuiElementTitleColor(titleBar)
+	titleBar.BorderMode = Enum.BorderMode.Middle
+	titleBar.BorderSizePixel = 1
+	require(script.Parent.Parent.Modules.ThemeService):AddItem(titleBar, "BorderColor3", Enum.StudioStyleGuideColor.Border, Enum.StudioStyleGuideModifier.Default)
 
 	local titleLabel = Instance.new('TextLabel')
 	titleLabel.Name = 'TitleLabel'
@@ -146,7 +153,8 @@ function CollapsibleTitledSectionClass:_CreateTitleBar(titleText)
 		 0, self._titleBarHeight*.5)
 	self._minimizeButton.BackgroundTransparency = 1
 	self._minimizeButton.Visible = self._minimizable -- only show when minimizable
-
+	require(script.Parent.Parent.Modules.ThemeService):AddItem(self._minimizeButton, "ImageColor3", Enum.StudioStyleGuideColor.ScriptText, Enum.StudioStyleGuideModifier.Default)
+	
 	self._minimizeButton.MouseButton1Down:connect(function()
 		self:_ToggleCollapsedState()
 	end)
