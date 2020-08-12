@@ -25,7 +25,7 @@ function CustomTextButtonClass.new(buttonName, labelText)
 	button.ScaleType = Enum.ScaleType.Slice
 	button.SliceCenter = Rect.new(7, 7, 156, 36)
 	button.AutoButtonColor = false
-
+	
 	local label = Instance.new('TextLabel')
 	label.Text = labelText
 	label.BackgroundTransparency = 1
@@ -33,6 +33,7 @@ function CustomTextButtonClass.new(buttonName, labelText)
 	label.Font = Enum.Font.SourceSans                  
 	label.TextSize = 15                           
 	label.Parent = button
+	require(script.Parent.Parent.Modules.ThemeService):AddItem(label, "TextColor3", Enum.StudioStyleGuideColor.ButtonText, Enum.StudioStyleGuideModifier.Default)
 
 	self._label = label
 	self._button = button
@@ -74,13 +75,16 @@ end
 function CustomTextButtonClass:_updateButtonVisual()
 	if (self._clicked) then 
 		self._button.Image = kButtonImageIdPressed
-		self._label.TextColor3 = GuiUtilities.kPressedButtonTextColor
+		--self._label.TextColor3 = GuiUtilities.kPressedButtonTextColor
+		self._button.ImageColor3 = Color3.new(1, 1, 1)
 	elseif (self._hovered) then 
 		self._button.Image = kButtonImageIdHovered
-		self._label.TextColor3 = GuiUtilities.kStandardButtonTextColor
+		--self._label.TextColor3 = GuiUtilities.kStandardButtonTextColor
+		self._button.ImageColor3 = settings().Studio.Theme:GetColor(Enum.StudioStyleGuideColor.Button, Enum.StudioStyleGuideModifier.Hover)
 	else
 		self._button.Image = kButtonImageIdDefault
-		self._label.TextColor3 = GuiUtilities.kStandardButtonTextColor
+		--self._label.TextColor3 = GuiUtilities.kStandardButtonTextColor
+		self._button.ImageColor3 = settings().Studio.Theme:GetColor(Enum.StudioStyleGuideColor.Button, Enum.StudioStyleGuideModifier.Default)
 	end
 end
 
