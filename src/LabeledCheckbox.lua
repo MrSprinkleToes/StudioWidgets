@@ -29,14 +29,14 @@ local kMinCheckImageSize = UDim2.new(0, kMinCheckImageWidth, 0, kMinCheckImageWi
 
 local kEnabledCheckImage = "rbxasset://textures/TerrainTools/icon_tick.png"
 local kDisabledCheckImage = "rbxasset://textures/TerrainTools/icon_tick_grey.png"
-local kCheckboxFrameImage = "rbxasset://textures/TerrainTools/checkbox_square.png"
+local kCheckboxFrameImage = "rbxasset://textures/PluginManagement/unchecked.png"
 LabeledCheckboxClass = {}
 LabeledCheckboxClass.__index = LabeledCheckboxClass
 
 LabeledCheckboxClass.kMinFrameSize = UDim2.new(0, kMinLabelWidth + kMinMargin + kMinButtonWidth, 0, kMinHeight)
 
 
-function LabeledCheckboxClass.new(nameSuffix, labelText, initValue, initDisabled)
+function LabeledCheckboxClass.new(nameSuffix, labelText, initValue, initDisabled, isSettings)
 	local self = {}
 	setmetatable(self, LabeledCheckboxClass)
 
@@ -60,7 +60,7 @@ function LabeledCheckboxClass.new(nameSuffix, labelText, initValue, initDisabled
 	button.Name = 'Button'
 	button.Size = UDim2.new(0, kCheckboxWidth, 0, kCheckboxWidth)
 	button.AnchorPoint = Vector2.new(0, .5)
-	button.BackgroundTransparency = 0
+	button.BackgroundTransparency = 1
 	button.Position = UDim2.new(0, GuiUtilities.StandardLineElementLeftMargin, .5, 0)
 	button.Parent = fullBackgroundButton
 	button.Image = kCheckboxFrameImage
@@ -72,7 +72,7 @@ function LabeledCheckboxClass.new(nameSuffix, labelText, initValue, initDisabled
 	checkImage.Parent = button
 	checkImage.Image = kEnabledCheckImage
 	checkImage.Visible = false
-	checkImage.Size = kCheckImageSize
+	checkImage.Size = UDim2.new(1, 3, 1, 3)
 	checkImage.AnchorPoint = Vector2.new(0.5, 0.5)
 	checkImage.Position = UDim2.new(0.5, 0, 0.5, 0)
 	checkImage.BackgroundTransparency = 1
@@ -86,6 +86,12 @@ function LabeledCheckboxClass.new(nameSuffix, labelText, initValue, initDisabled
 	self._useDisabledOverride = false
 	self._disabledOverride = false
 	self:SetDisabled(initDisabled)
+	
+	if isSettings then
+		button.Position += UDim2.new(0, 75, 0, 0)
+		label.Truncate.Position += UDim2.new(0, 75, 0, 0)
+		label.TruncateFade.Position += UDim2.new(0, 75, 0, 0)
+	end
 
 	self._value = not initValue
 	self:SetValue(initValue)
@@ -119,7 +125,16 @@ function LabeledCheckboxClass:_SetupMouseClickHandling()
 end
 
 function LabeledCheckboxClass:_HandleUpdatedValue()
-	self._checkImage.Visible = self:GetValue()
+	if not self._checkImage.Visible then
+		self._checkImage.Visible = true
+	end
+	if self:GetValue() then
+		self._checkImage.Image = string.format("rbxasset://textures/PluginManagement/checked_%s.png", string.lower(settings().Studio.Theme.Name))
+		self._checkImage.ImageColor3 = Color3.new(1, 1, 1)
+	else
+		self._checkImage.Image = "rbxasset://textures/PluginManagement/unchecked.png"
+		self._checkImage.ImageColor3 = settings().Studio.Theme:GetColor(Enum.StudioStyleGuideColor.CheckedFieldBackground, Enum.StudioStyleGuideModifier.Default)
+	end
 
 	if (self._valueChangedFunction) then 
 		self._valueChangedFunction(self:GetValue())
