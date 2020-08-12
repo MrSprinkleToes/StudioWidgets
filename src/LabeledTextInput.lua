@@ -13,7 +13,7 @@ local kTextBoxInternalPadding = 4
 LabeledTextInputClass = {}
 LabeledTextInputClass.__index = LabeledTextInputClass
 
-function LabeledTextInputClass.new(nameSuffix, labelText, defaultValue)
+function LabeledTextInputClass.new(nameSuffix, labelText, defaultValue, readonly, deprecated)
 	local self = {}
 	setmetatable(self, LabeledTextInputClass)
 
@@ -22,7 +22,7 @@ function LabeledTextInputClass.new(nameSuffix, labelText, defaultValue)
 	-- emojis, etc, it's not enough to count characters, particularly when 
 	-- concerned with "how many <things> am I rendering?".
 	-- We are using the 
-	self._MaxGraphemes = 10
+	self._MaxGraphemes = 50
 	
 	self._valueChangedFunction = nil
 
@@ -30,10 +30,12 @@ function LabeledTextInputClass.new(nameSuffix, labelText, defaultValue)
 
 	local frame = GuiUtilities.MakeStandardFixedHeightFrame('TextInput ' .. nameSuffix)
 	self._frame = frame
+	frame.Archivable = false
 
 	local label = GuiUtilities.MakeStandardPropertyLabel(labelText)
 	label.Parent = frame
 	self._label = label
+	label.Archivable = false
 
 	self._value = defaultValue
 
@@ -46,6 +48,7 @@ function LabeledTextInputClass.new(nameSuffix, labelText, defaultValue)
 	textBoxWrapperFrame.Parent = frame
 	GuiUtilities.syncGuiElementInputFieldColor(textBoxWrapperFrame)
 	GuiUtilities.syncGuiElementBorderColor(textBoxWrapperFrame)
+	textBoxWrapperFrame.Archivable = false
 
 	local textBox = Instance.new("TextBox")
 	textBox.Parent = textBoxWrapperFrame
@@ -58,8 +61,25 @@ function LabeledTextInputClass.new(nameSuffix, labelText, defaultValue)
 	textBox.Size = UDim2.new(1, -kTextBoxInternalPadding, 1, GuiUtilities.kTextVerticalFudge)
 	textBox.Position = UDim2.new(0, kTextBoxInternalPadding, 0, 0)
 	textBox.ClipsDescendants = true
-
-	GuiUtilities.syncGuiElementFontColor(textBox)
+	textBox.Archivable = false
+	textBox.ClearTextOnFocus = false
+	
+	if readonly then
+		textBoxWrapperFrame.BackgroundTransparency = .55
+		textBox.TextEditable = false
+		textBox.ClearTextOnFocus = false
+		if not deprecated then
+			require(script.Parent.Parent.Modules.ThemeService):AddItem(textBox, "TextColor3", Enum.StudioStyleGuideColor.MainText, Enum.StudioStyleGuideModifier.Disabled)
+			require(script.Parent.Parent.Modules.ThemeService):AddItem(label, "TextColor3", Enum.StudioStyleGuideColor.MainText, Enum.StudioStyleGuideModifier.Disabled)
+		end
+	end
+	
+	if not readonly and not deprecated then
+		GuiUtilities.syncGuiElementFontColor(textBox)
+	elseif deprecated then
+		require(script.Parent.Parent.Modules.ThemeService):AddItem(textBox, "TextColor3", Enum.StudioStyleGuideColor.WarningText, Enum.StudioStyleGuideModifier.Default)
+		require(script.Parent.Parent.Modules.ThemeService):AddItem(label, "TextColor3", Enum.StudioStyleGuideColor.WarningText, Enum.StudioStyleGuideModifier.Default)
+	end
 	
 	textBox:GetPropertyChangedSignal("Text"):connect(function()
 		-- Never let the text be too long.
